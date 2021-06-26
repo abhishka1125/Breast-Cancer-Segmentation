@@ -11,18 +11,11 @@ class TNBCDataset(Dataset):
 	def __init__(self, root):
 		self.root = root
 		self.img_list = os.listdir(os.path.join(root, 'images'))
-		#self.transform = transform
 
 	def __len__(self):
 		return len(self.img_list)
 	
 	def transform(self, image, mask):
-        # 
-		'''
-		resize = transforms.Resize(size=(520, 520))
-		image = resize(image)
-		mask = resize(mask)
-		'''
 
 		# Random crop
 		i, j, h, w = transforms.RandomCrop.get_params(
