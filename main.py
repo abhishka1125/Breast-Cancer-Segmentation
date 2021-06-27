@@ -37,7 +37,7 @@ def parse_args():
     parser.add_argument('--vit_blocks',
                         help='Number of ViT blocks',
                         type=int,
-                        default=1)
+                        default=4)
     parser.add_argument('--img_dim',
                         help='input dim',
                         type=int,
@@ -45,7 +45,7 @@ def parse_args():
     parser.add_argument('--vit_dim_linear_mhsa_block',
                         help='Dimesntion of ViT Multi Head Self Attention blocks',
                         type=int,
-                        default=512)
+                        default=1024)
     parser.add_argument('--n_class',
                         help='Number of segmentation class',
                         type=int,
@@ -61,11 +61,11 @@ def parse_args():
     parser.add_argument('--epochs',
                         help='Total Epochs',
                         type=int,
-                        default=100)
+                        default=1000)
     parser.add_argument('--max_lr',
                         help='maximum Learning Rate',
                         type=float,
-                        default=0.01)
+                        default=3e-5)
     parser.add_argument('--weight_decay',
                         help='Weight Decay',
                         type=float,
@@ -122,8 +122,8 @@ def main():
 
     test_batch = 2
 
-    train_loader = DataLoader(train_set, batch_size=opts.train_batch, shuffle=True, pin_memory=True, num_workers=4)
-    val_loader = DataLoader(val_set, batch_size=test_batch, shuffle=True, pin_memory=True, num_workers=4)
+    train_loader = DataLoader(dataset, batch_size=opts.train_batch, shuffle=True, pin_memory=True, num_workers=4)
+    val_loader = DataLoader(dataset, batch_size=opts.train_batch, shuffle=True, pin_memory=True, num_workers=4, drop_last=True)
 
     # Evaluation 
     evaluator = BCEvaluator()
@@ -196,7 +196,7 @@ def main():
 
                     losses += loss.item()
 
-                    for i in range(test_batch):
+                    for i in range(opts.train_batch):
                         evaluator.update(out_softmax[i].squeeze().cpu().numpy(), mask[i].squeeze().cpu().numpy())
 
         val_mats = evaluator.evaluate()
