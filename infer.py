@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument('--outDir',
                         help='Output directory',
                         type=str,
-                        default='results')
+                        default='results_01')
     parser.add_argument('--vit_blocks',
                         help='Number of ViT blocks',
                         type=int,
@@ -71,6 +71,13 @@ def main():
     model = model.cuda()
     model.eval()
 
+    '''
+    tot_mod_para = sum(p.numel() for p in model.parameters())
+
+    final_best_dice = 100 * (1 - ckpt['loss'])
+    print('Best DSC is {}total model params is {} M'.format(final_best_dice, tot_mod_para/1000000))
+    '''
+    
     # Prepare input
     img = Image.open(opts.in_img).convert('RGB')
     img_np = np.array(img, dtype=np.uint8)
@@ -94,12 +101,16 @@ def main():
     gt_canny = cv2.Canny(gt_np, 30, 150)
 
     img_np[pred_canny == 255] = [255, 0, 0]  # turn edges to red
+    out_img_pred_only = os.path.join(opts.outDir, 'pred_only',opts.in_img.split('/')[-1])
+    Image.fromarray(img_np).save(out_img_pred_only)
+
     img_np[gt_canny == 255] = [0, 255, 0]  # turn edges to red
 
-    out_img = os.path.join(opts.outDir, opts.in_img.split('/')[-1])
+    out_img = os.path.join(opts.outDir, 'pred_gt' ,opts.in_img.split('/')[-1])
     Image.fromarray(img_np).save(out_img)
 
     #print(out_softmax_si.shape, np.unique(out_np))
+    
 
 if __name__ == '__main__':
     main()
